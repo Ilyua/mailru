@@ -1,0 +1,16 @@
+server: Debug mode is ON!
+server: MAIN: argc = 1
+server:  argv[0] = ./server
+server: Main listener(fd=3) created! 
+server: Listener binded to: 0
+server: Start to listen: 0!
+server: Epoll(fd=4) created!
+server: Main listener(4) added to epoll!
+client: Created pipe with pipe_fd[0](read part): 4 and pipe_fd[1](write part):  5
+server: Epoll events count: 1
+client: Created epoll with fd: 6
+server: events[0].data.fd = 3
+client: Socket connection (fd = 3) added to epoll
+client: Pipe[0] (read) with fd(4) added to epoll
+server: connection from:127.0.0.1:55082, socket assigned to:5 
+s
