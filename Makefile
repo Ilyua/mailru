@@ -5,4 +5,4 @@ CC=gcc
 main: server client
 
 clear:
-	find . -maxdepth 1 -type f  -perm /111 -exec rm {} \; && rm -f *.o *.out
+	find . -maxdepth 1 -type f  -perm /111 -exec rm {} \; && rm -f *.o *.out *.txt
