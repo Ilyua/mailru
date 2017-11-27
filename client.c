@@ -10,7 +10,7 @@ int DEBUG_MODE = 1;
   We use 'fork' to make two process.
     Child process:
     - waiting for user's input message;
-    - and sending all users messages to parent process through pipe.
+    - and sendalling all users messages to parent process through pipe.
     ('man pipe' has good example how to do it)
 
     Parent process:
@@ -139,10 +139,10 @@ int main(int argc, char *argv[])
                 {
                     if (DEBUG_MODE)
                     {
-                        sprintf(str, "client: Server sends new message!\n");
+                        sprintf(str, "client: Server sendalls new message!\n");
                         write_to_logfile(LOG_FILE_NAME, str);
                     }
-                    CHK2(res, recv(sock, message, BUF_SIZE, 0));
+                    CHK2(res, recvall(sock, message, BUF_SIZE, 0));
 
                     // сервер закрыл соединение
                     if (res == 0)
@@ -171,10 +171,10 @@ int main(int argc, char *argv[])
 
                     // zero size of result means the child process going to exit
                     if (res == 0) continue_to_work = 0; // exit parent to
-                    // send message to server
+                    // sendall message to server
                     else
                     {
-                        CHK(send(sock, message, BUF_SIZE, 0));
+                        CHK(sendall(sock, message, BUF_SIZE, 0));
                     }
                 }
             }

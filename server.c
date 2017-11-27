@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 
                 memset(&message, 0, BUF_SIZE); //bzero(message, BUF_SIZE);
                 res = sprintf(message, STR_WELCOME, client);
-                CHK2(res, send(client, message, BUF_SIZE, 0));
+                CHK2(res, sendall(client, message, BUF_SIZE, 0));
 
             }
             else
@@ -191,11 +191,11 @@ int handle_message(int client)
     // buf -сообщение клиента, message - форматированная строка для рассылки другим процессорам
 
     //freopen("log.txt", "a", stderr);
-    
 
-   //  char*  buf=(char*)calloc(BUF_SIZE,sizeof(char));
-   // char*  message=(char*)calloc(BUF_SIZE,sizeof(char));
-  char buf[BUF_SIZE], message[BUF_SIZE];
+
+    //  char*  buf=(char*)calloc(BUF_SIZE,sizeof(char));
+    // char*  message=(char*)calloc(BUF_SIZE,sizeof(char));
+    char buf[BUF_SIZE], message[BUF_SIZE];
     memset(&buf, 0, BUF_SIZE);
     memset(&message, 0, BUF_SIZE);
 
@@ -208,7 +208,7 @@ int handle_message(int client)
         sprintf(str, "server: Try to read from fd(%d)\n", client);
         write_to_logfile(LOG_FILE_NAME, str);
     }
-    CHK2(len, recv(client, buf, BUF_SIZE, 0));
+    CHK2(len, recvall(client, buf, BUF_SIZE, 0));
 
     // если ничего не считали - клиент отключился
     if(len == 0)
@@ -239,7 +239,7 @@ int handle_message(int client)
             CHK(sendall(clients_list.list[i], message, BUF_SIZE, 0));
             if(DEBUG_MODE)
             {
-                sprintf(str, "server: Message '%s' send to client with fd(%d) \n", message, clients_list.list[i]);
+                sprintf(str, "server: Message '%s' sendall to client with fd(%d) \n", message, clients_list.list[i]);
                 write_to_logfile(LOG_FILE_NAME, str);
             }
         }

@@ -18,7 +18,7 @@
 #include <unistd.h>
    
 #define BUF_SIZE 10240
-#define SERVER_PORT 12345
+#define SERVER_PORT 12343
 #define SERVER_HOST INADDR_ANY
 #define LOG_FILE_NAME "log.txt"
  
@@ -106,10 +106,10 @@ int sendall(int s, char *buf, int len, int flags)
 
 int recvall(int s, char *buf, int len, int flags)
 {
-
-    int total = 0;
+	 int total = 0;
     int n;
-    while(1)
+
+    while(total < len)
     {
         n = recv(s, buf+total, len-total, flags);
         if(n == -1) { break; }
