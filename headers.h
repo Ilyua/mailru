@@ -17,8 +17,8 @@
 #include <errno.h>
 #include <unistd.h>
    
-#define BUF_SIZE 1024
-#define SERVER_PORT 12346
+#define BUF_SIZE 10240
+#define SERVER_PORT 12345
 #define SERVER_HOST INADDR_ANY
 #define LOG_FILE_NAME "log.txt"
  
@@ -43,7 +43,7 @@
 #define MAX_CLIENTS 1000
 
 #define CHK(eval) if(eval < 0){perror("eval");exit(-1);}
-#define CHK2(res, eval) if((res = eval) < 0){perror("eval"); exit(-1);}
+#define CHK2(res, eval) if((res = eval) < 0){printf("%d %s",__LINE__,__FILE__);perror("eval"); exit(-1);}
 
 int handle_message(int new_fd);// прототип функции
 
@@ -78,4 +78,43 @@ int delete_element(int * array, int element,int* n){
 		array[j]=array[j+1];
 	}
 	return 1;
+}
+
+int write_to_logfile(char* path,char* log_string){
+FILE* file = fopen(path, "a");
+fprintf(file,"%s",log_string);
+fclose(file);
+}
+
+
+
+
+int sendall(int s, char *buf, int len, int flags)
+{
+    int total = 0;
+    int n;
+
+    while(total < len)
+    {
+        n = send(s, buf+total, len-total, flags);
+        if(n == -1) { break; }
+        total += n;
+    }
+
+    return (n==-1 ? -1 : total);
+}
+
+int recvall(int s, char *buf, int len, int flags)
+{
+
+    int total = 0;
+    int n;
+    while(1)
+    {
+        n = recv(s, buf+total, len-total, flags);
+        if(n == -1) { break; }
+        total += n;
+    }
+
+    return (n==-1 ? -1 : total);
 }
