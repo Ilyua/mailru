@@ -9,7 +9,7 @@ struct clients
 };
 
 struct clients clients_list;
-char str[500] = {0};
+char str[STR_BUF] = {0};
 int main(int argc, char *argv[])
 {
     //puts("1234");
@@ -29,14 +29,14 @@ int main(int argc, char *argv[])
     {
         //fprintf(stdout,"123\n");
 
-        sprintf(str, "server: Debug mode is ON!\n");
+        snprintf(str,STR_BUF, "server: Debug mode is ON!\n");
         write_to_logfile(LOG_FILE_NAME, str);
-        sprintf(str, "server: MAIN: argc = %d\n", argc);
+        snprintf(str,STR_BUF, "server: MAIN: argc = %d\n", argc);
         write_to_logfile(LOG_FILE_NAME, str);
         for(int i = 0; i < argc; i++)
         {
             //
-            sprintf(str, "server:  argv[%d] = %s\n", i, argv[i]);
+            snprintf(str,STR_BUF, "server:  argv[%d] = %s\n", i, argv[i]);
             write_to_logfile(LOG_FILE_NAME, str);
         }
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     else
     {
 
-        sprintf(str, "server: Debug mode is OFF!\n");
+        snprintf(str,STR_BUF, "server: Debug mode is OFF!\n");
         write_to_logfile(LOG_FILE_NAME, str);
     }
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     // создание слушающего сокета
     CHK2(listener, socket(PF_INET, SOCK_STREAM, 0));
 
-    sprintf(str, "server: Main listener(fd=%d) created! \n", listener);
+    snprintf(str,STR_BUF, "server: Main listener(fd=%d) created! \n", listener);
     write_to_logfile(LOG_FILE_NAME, str);
 
     // неблокирующий режим работы сокета(управление возвращается сразу же)
@@ -91,19 +91,19 @@ int main(int argc, char *argv[])
     // закрепление за портом
     CHK(bind(listener, (struct sockaddr *)&addr, sizeof(addr)));
 
-    sprintf(str, "server: Listener binded to: %d\n", SERVER_HOST);
+    snprintf(str,STR_BUF, "server: Listener binded to: %d\n", SERVER_HOST);
     write_to_logfile(LOG_FILE_NAME, str);
 
     // слушаем
     CHK(listen(listener, MAX_CLIENTS));
 
-    sprintf(str, "server: Start to listen: %d!\n", SERVER_HOST);
+    snprintf(str,STR_BUF, "server: Start to listen: %d!\n", SERVER_HOST);
     write_to_logfile(LOG_FILE_NAME, str);
 
     // создание декстриптора объекта epoll
     CHK2(epfd, epoll_create(EPOLL_SIZE));
 
-    sprintf(str, "server: Epoll(fd=%d) created!\n", epfd);
+    snprintf(str,STR_BUF, "server: Epoll(fd=%d) created!\n", epfd);
     write_to_logfile(LOG_FILE_NAME, str);
 
     //  ev - для слушающего сокета, добавляем его туда
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     // добавляем слушающие сокет в epoll
     CHK(epoll_ctl(epfd, EPOLL_CTL_ADD, listener, &ev));
 
-    sprintf(str, "server: Main listener(%d) added to epoll!\n", epfd);
+    snprintf(str,STR_BUF, "server: Main listener(%d) added to epoll!\n", epfd);
     write_to_logfile(LOG_FILE_NAME, str);
     // принимаем сообщения, подключаем клиентов
     while(1)
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         CHK2(epoll_events_count, epoll_wait(epfd, events, EPOLL_SIZE, EPOLL_RUN_TIMEOUT));
         if(DEBUG_MODE)
         {
-            sprintf(str, "server: Epoll events count: %d\n", epoll_events_count);
+            snprintf(str,STR_BUF, "server: Epoll events count: %d\n", epoll_events_count);
             write_to_logfile(LOG_FILE_NAME, str);
         }
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
             if(DEBUG_MODE)
             {
 
-                sprintf(str, "server: events[%d].data.fd = %d\n", i, events[i].data.fd);
+                snprintf(str,STR_BUF, "server: events[%d].data.fd = %d\n", i, events[i].data.fd);
                 write_to_logfile(LOG_FILE_NAME, str);
 
             }
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
                 CHK2(client, accept(listener, (struct sockaddr *) &their_addr, &socklen));
                 if(DEBUG_MODE)
                 {
-                    sprintf(str, "server: connection from:%s:%d, socket assigned to:%d \n",
+                    snprintf(str,STR_BUF, "server: connection from:%s:%d, socket assigned to:%d \n",
                             inet_ntoa(their_addr.sin_addr),
                             ntohs(their_addr.sin_port),
                             client);
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
                 clients_list.size++; // добавляем в список клиентов
                 if(DEBUG_MODE)
                 {
-                    sprintf(str, "server: Add new client(fd = %d) to epoll and now clients_list.size = %d\n",
+                    snprintf(str,STR_BUF, "server: Add new client(fd = %d) to epoll and now clients_list.size = %d\n",
                             client,
                             clients_list.size);
                     write_to_logfile(LOG_FILE_NAME, str);
@@ -205,7 +205,7 @@ int handle_message(int client)
     // получение сообщения
     if(DEBUG_MODE)
     {
-        sprintf(str, "server: Try to read from fd(%d)\n", client);
+        snprintf(str,STR_BUF, "server: Try to read from fd(%d)\n", client);
         write_to_logfile(LOG_FILE_NAME, str);
     }
     CHK2(len, recvall(client, buf, BUF_SIZE, 0));
@@ -217,7 +217,7 @@ int handle_message(int client)
         delete_element(&clients_list.list[0], client, &clients_list.size);
         if(DEBUG_MODE)
         {
-            sprintf(str, "server: Client with fd: %d closed! And now clients_list.size = %d\n", client, clients_list.size);
+            snprintf(str,STR_BUF, "server: Client with fd: %d closed! And now clients_list.size = %d\n", client, clients_list.size);
             write_to_logfile(LOG_FILE_NAME, str);
         }// рассылка сообщения остальным клиентам
     }
@@ -239,14 +239,14 @@ int handle_message(int client)
             CHK(sendall(clients_list.list[i], message, BUF_SIZE, 0));
             if(DEBUG_MODE)
             {
-                sprintf(str, "server: Message '%s' sendall to client with fd(%d) \n", message, clients_list.list[i]);
+                snprintf(str,STR_BUF, "server: Message '%s' sendall to client with fd(%d) \n", message, clients_list.list[i]);
                 write_to_logfile(LOG_FILE_NAME, str);
             }
         }
 
         if(DEBUG_MODE)
         {
-            sprintf(str, "server: Client(%d) received message successfully:'%s', a total of %d bytes data.\n", client, buf, len);
+            snprintf(str,STR_BUF, "server: Client(%d) received message successfully:'%s', a total of %d bytes data.\n", client, buf, len);
             write_to_logfile(LOG_FILE_NAME, str);
         }
 

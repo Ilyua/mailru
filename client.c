@@ -32,16 +32,16 @@ int main(int argc, char *argv[])
     if (DEBUG_MODE)
     {
 
-        sprintf(str, "client: client: Debug mode is ON!\n");
+        snprintf(str, STR_BUF, "client: client: Debug mode is ON!\n");
         write_to_logfile(LOG_FILE_NAME, str);
-        sprintf(str, "client: client: MAIN: argc = %d\n", argc);
+        snprintf(str, STR_BUF, "client: client: MAIN: argc = %d\n", argc);
         int i = 0;
         write_to_logfile(LOG_FILE_NAME, str);
         for (i = 0; i < argc; i++)
-            sprintf(str, "client:  argv[%d] = %s\n", i, argv[i]);
+            snprintf(str, STR_BUF, "client:  argv[%d] = %s\n", i, argv[i]);
         write_to_logfile(LOG_FILE_NAME, str);
     }
-    else sprintf(str, "client: Debug mode is OFF!\n");
+    else snprintf(str, STR_BUF, "client: Debug mode is OFF!\n");
 
     int sock, pid, pipe_fd[2], epfd;
 
@@ -63,16 +63,16 @@ int main(int argc, char *argv[])
     CHK(pipe(pipe_fd));
     if (DEBUG_MODE)
     {
-        sprintf(str, "client: Created pipe with pipe_fd[0](read part): %d and pipe_fd[1](write part): % d\n",
-                pipe_fd[0],
-                pipe_fd[1]);
+        snprintf(str, STR_BUF, "client: Created pipe with pipe_fd[0](read part): %d and pipe_fd[1](write part): % d\n",
+                 pipe_fd[0],
+                 pipe_fd[1]);
         write_to_logfile(LOG_FILE_NAME, str);
     }
 
     CHK2(epfd, epoll_create(EPOLL_SIZE));
     if (DEBUG_MODE)
     {
-        sprintf(str, "client: Created epoll with fd: %d\n", epfd);
+        snprintf(str, STR_BUF, "client: Created epoll with fd: %d\n", epfd);
         write_to_logfile(LOG_FILE_NAME, str);
     }
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     CHK(epoll_ctl(epfd, EPOLL_CTL_ADD, sock, & ev));
     if (DEBUG_MODE)
     {
-        sprintf(str, "client: Socket connection (fd = %d) added to epoll\n", sock);
+        snprintf(str, STR_BUF, "client: Socket connection (fd = %d) added to epoll\n", sock);
         write_to_logfile(LOG_FILE_NAME, str);
     }
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     CHK(epoll_ctl(epfd, EPOLL_CTL_ADD, pipe_fd[0], & ev));
     if (DEBUG_MODE)
     {
-        sprintf(str, "client: Pipe[0] (read) with fd(%d) added to epoll\n", pipe_fd[0]);
+        snprintf(str, STR_BUF, "client: Pipe[0] (read) with fd(%d) added to epoll\n", pipe_fd[0]);
         write_to_logfile(LOG_FILE_NAME, str);
     }
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     {
     case 0: // child process
         close(pipe_fd[0]); // pipe[0] - нам больше не нужен , мы не будем ничего читать
-        sprintf(str, "client: Enter 'exit' to exit\n");
+        snprintf(str, STR_BUF, "client: Enter 'exit' to exit\n");
         write_to_logfile(LOG_FILE_NAME, str);
         while (continue_to_work)
         {
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         int epoll_events_count, res;
 
         // *** Main cycle(epoll_wait)
-        while (continue_to_work)
+        while(continue_to_work)
         {
             CHK2(epoll_events_count, epoll_wait(epfd, events, 2, EPOLL_RUN_TIMEOUT));
             if (DEBUG_MODE)
@@ -129,23 +129,22 @@ int main(int argc, char *argv[])
                 sprintf(str, "client: Epoll events count: %d\n", epoll_events_count);
                 write_to_logfile(LOG_FILE_NAME, str);
             }
-
-            for (int i = 0; i < epoll_events_count; i++)
+            for(int i = 0; i < epoll_events_count ; i++)
             {
-                bzero( & message, BUF_SIZE);
+                bzero(&message, BUF_SIZE);
 
-                // EPOLLIN event from server// почему обновляется событие epollin, если сервер ничего не прислал, а только закрылся?
-                if (events[i].data.fd == sock)
+                // EPOLLIN event from server( new message from server)
+                if(events[i].data.fd == sock)
                 {
                     if (DEBUG_MODE)
                     {
                         sprintf(str, "client: Server sendalls new message!\n");
                         write_to_logfile(LOG_FILE_NAME, str);
                     }
-                    CHK2(res, recvall(sock, message, BUF_SIZE, 0));
+                    CHK2(res, recv(sock, message, BUF_SIZE, 0));
 
-                    // сервер закрыл соединение
-                    if (res == 0)
+                    // zero size of result means the server closed connection
+                    if(res == 0)
                     {
                         if (DEBUG_MODE)
                         {
@@ -155,8 +154,12 @@ int main(int argc, char *argv[])
                         CHK(close(sock));
                         continue_to_work = 0;
                     }
-                    else fprintf(stdout, " %s\n", message);
-                    sprintf(str, "client: %s\n", message);
+                    else
+                    {
+                        fprintf(stdout, " %s\n", message);
+                        sprintf(str, "client: %s\n", message);
+
+                    }
 
                     // EPOLLIN event from child process(user's input message)
                 }
@@ -170,11 +173,11 @@ int main(int argc, char *argv[])
                     CHK2(res, read(events[i].data.fd, message, BUF_SIZE));
 
                     // zero size of result means the child process going to exit
-                    if (res == 0) continue_to_work = 0; // exit parent to
-                    // sendall message to server
+                    if(res == 0) continue_to_work = 0; // exit parent to
+                    // send message to server
                     else
                     {
-                        CHK(sendall(sock, message, BUF_SIZE, 0));
+                        CHK(send(sock, message, BUF_SIZE, 0));
                     }
                 }
             }
@@ -184,7 +187,7 @@ int main(int argc, char *argv[])
     {
         if (DEBUG_MODE)
         {
-            sprintf(str, "client: Shutting down parent!\n");
+            snprintf(str, STR_BUF, "client: Shutting down parent!\n");
             write_to_logfile(LOG_FILE_NAME, str);
         }
         close(pipe_fd[0]);
@@ -194,7 +197,7 @@ int main(int argc, char *argv[])
     {
         if (DEBUG_MODE)
         {
-            sprintf(str, "client: Shutting down child!\n");
+            snprintf(str, STR_BUF, "client: Shutting down child!\n");
             write_to_logfile(LOG_FILE_NAME, str);
         }
         close(pipe_fd[1]);

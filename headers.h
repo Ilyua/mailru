@@ -7,21 +7,18 @@
 #include <unistd.h> 
 #include <sys/epoll.h> 
 #include <fcntl.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/epoll.h>
-#include <fcntl.h>
+
+
 #include <errno.h>
-#include <unistd.h>
+
    
 #define BUF_SIZE 10240
-#define SERVER_PORT 12343
+#define SERVER_PORT 12344
 #define SERVER_HOST INADDR_ANY
 #define LOG_FILE_NAME "log.txt"
- 
+#define STR_BUF 200
 // Default timeout - http://linux.die.net/man/2/epoll_wait
 #define EPOLL_RUN_TIMEOUT -1
 
@@ -37,7 +34,7 @@
 // Warning message if you alone in server
 #define STR_NOONE_CONNECTED "Noone connected to server except you!"
 
-// Commad to exit
+
 // Commad to exit
 #define CMD_EXIT "EXIT"
 #define MAX_CLIENTS 1000
