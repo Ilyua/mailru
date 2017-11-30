@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
             CHK2(epoll_events_count, epoll_wait(epfd, events, 2, EPOLL_RUN_TIMEOUT));
             if (DEBUG_MODE)
             {
-                sprintf(str, "client: Epoll events count: %d\n", epoll_events_count);
+                snprintf(str,STR_BUF, "client: Epoll events count: %d\n", epoll_events_count);
                 write_to_logfile(LOG_FILE_NAME, str);
             }
             for(int i = 0; i < epoll_events_count ; i++)
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
                 {
                     if (DEBUG_MODE)
                     {
-                        sprintf(str, "client: Server sendalls new message!\n");
+                        snprintf(str,STR_BUF, "client: Server sendalls new message!\n");
                         write_to_logfile(LOG_FILE_NAME, str);
                     }
                     CHK2(res, recv(sock, message, BUF_SIZE, 0));
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                     {
                         if (DEBUG_MODE)
                         {
-                            sprintf(str, "client: Server closed connection: %d\n", sock);
+                            snprintf(str,STR_BUF, "client: Server closed connection: %d\n", sock);
                             write_to_logfile(LOG_FILE_NAME, str);
                         }
                         CHK(close(sock));
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
                     else
                     {
                         fprintf(stdout, " %s\n", message);
-                        sprintf(str, "client: %s\n", message);
+                        snprintf(str,STR_BUF, "client: %s\n", message);
 
                     }
 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
                 {
                     if (DEBUG_MODE)
                     {
-                        sprintf(str, "client: New pipe event!\n");
+                        snprintf(str,STR_BUF, "client: New pipe event!\n");
                         write_to_logfile(LOG_FILE_NAME, str);
                     }
                     CHK2(res, read(events[i].data.fd, message, BUF_SIZE));

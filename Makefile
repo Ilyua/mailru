@@ -3,8 +3,8 @@ CC=gcc
 
 
 main: clear
-	gcc  server.c  -o server
-	gcc  client.c  -o client  
+	gcc  functions.c server.c  -o server
+	gcc  functions.c client.c  -o client  
 
 clear:
 	find . -maxdepth 1 -type f  -perm /111 -exec rm {} \; && rm -f *.o *.out *.txt
